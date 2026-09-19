@@ -21,7 +21,7 @@
     "java": ">=21",
     "minecraft": "${minecraft_version}",
     "fabric": "*",
-    "cobblemon": "${cobblemon_version}",
+    "cobblemon": ">=${modCobblemonVersion} <=1.9.0",
     "tim_core": ">=${tim_core_fabric_version}",
     "owo": ">=${owo_fabric_version}"
   },
