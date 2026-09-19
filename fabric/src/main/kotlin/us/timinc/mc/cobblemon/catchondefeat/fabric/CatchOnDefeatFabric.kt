@@ -6,9 +6,10 @@ import us.timinc.mc.cobblemon.timcore.fabric.AbstractFabricMod
 
 object CatchOnDefeatFabric : AbstractFabricMod(CatchOnDefeat) {
     override fun onInitialize() {
-        val networkManager = CatchOnDefeatFabricNetworkManager
-        networkManager.registerMessages()
-        networkManager.registerServerHandlers()
-        CatchOnDefeat.Network.manager = networkManager
+        with(CatchOnDefeatFabricNetworkManager) {
+            registerMessages()
+            registerServerHandlers()
+            CatchOnDefeat.Network.manager = this
+        }
     }
 }
