@@ -9,9 +9,8 @@ import thedarkcolour.kotlinforforge.neoforge.forge.MOD_BUS
 
 @Mod(MOD_ID)
 object CatchOnDefeatNeoForge : AbstractNeoForgeMod(CatchOnDefeat) {
-    val networkManager = CatchOnDefeatNeoForgeNetworkManager
-
     init {
-        MOD_BUS.addListener(networkManager::registerMessages)
+        CatchOnDefeat.Network.manager = CatchOnDefeatNeoForgeNetworkManager
+        MOD_BUS.addListener((CatchOnDefeat.Network.manager as CatchOnDefeatNeoForgeNetworkManager)::registerMessages)
     }
 }
