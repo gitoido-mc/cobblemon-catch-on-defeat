@@ -109,33 +109,3 @@ class ConfirmJoinScreen(private val packet: JoinConfirmReceipt.Packet) :
         .pos(pos.x.toInt(), pos.y.toInt())
         .build()
 }
-
-//class ConfirmJoinScreen(private val packet: JoinConfirmReceipt.Packet) :
-//    BaseUIModelScreen<FlowLayout>(FlowLayout::class.java, DataSource.asset(modResource("confirm_join"))) {
-//    private var responded: Boolean = false
-//
-//    override fun build(layout: FlowLayout) {
-//        val confirmLabel = layout.childById(LabelComponent::class.java, "confirm-label")
-//        confirmLabel.text(wouldLikeToJoinTeam(packet.name))
-//
-//        val acceptButton = layout.childById(ButtonComponent::class.java, "accept-button")
-//        acceptButton.onPress {
-//            responded = true
-//            packet.accept()
-//            onClose()
-//        }
-//
-//        val rejectButton = layout.childById(ButtonComponent::class.java, "reject-button")
-//        rejectButton.onPress {
-//            responded = true
-//            packet.reject()
-//            onClose()
-//        }
-//    }
-//
-//    override fun dispose() {
-//        super.dispose()
-//        if (responded) return
-//        packet.reject()
-//    }
-//}
