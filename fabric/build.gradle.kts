@@ -42,6 +42,7 @@ dependencies {
 
     modImplementation("net.fabricmc:fabric-loader:${property("fabric_loader_version")}")
     modImplementation(fabricApi.module("fabric-command-api-v2", property("fabric_api_version").toString()))
+    modImplementation(fabricApi.module("fabric-networking-api-v1", property("fabric_api_version").toString()))
 
     //needed for cobblemon
     modImplementation("net.fabricmc:fabric-language-kotlin:${property("fabric_kotlin")}")
