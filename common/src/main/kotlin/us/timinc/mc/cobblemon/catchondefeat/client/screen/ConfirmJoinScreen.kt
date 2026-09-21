@@ -34,16 +34,7 @@ class ConfirmJoinScreen(private val packet: JoinConfirmReceipt.Packet) :
         private val platformShadow = cobblemonResource("textures/gui/pokedex/platform_shadow.png")
     }
 
-
     private var responded: Boolean = false
-    val middleX: Int
-        get() = this.minecraft!!.window.guiScaledWidth / 2
-    val middleY: Int
-        get() = this.minecraft!!.window.guiScaledHeight / 2
-    val leftX: Int
-        get() = middleX - BASE_WIDTH / 2
-    val topY: Int
-        get() = middleY - BASE_HEIGHT / 2
 
     var ticksElapsed = 0
     var currentBallBackgroundFrame = 0
@@ -69,19 +60,30 @@ class ConfirmJoinScreen(private val packet: JoinConfirmReceipt.Packet) :
 
         addRenderableWidget(pokeWidget)
 
-        val proceed = createButton(x + 134, y + 63, cancel = false) {
-            responded = true
-            packet.accept()
-            onClose()
-        }
+        val proceed = createButton(
+            x + 134,
+            y + 63,
+            cancel = false,
+            countdown = packet.countdown,
+            callback = {
+                responded = true
+                packet.accept()
+                onClose()
+            }
+        )
 
         addRenderableWidget(proceed)
 
-        val cancel = createButton(x + 186, y + 63, cancel = true) {
-            responded = false
-            packet.reject()
-            onClose()
-        }
+        val cancel = createButton(
+            x + 186,
+            y + 63,
+            cancel = true,
+            callback = {
+                responded = false
+                packet.reject()
+                onClose()
+            }
+        )
 
         addRenderableWidget(cancel)
 
@@ -92,7 +94,6 @@ class ConfirmJoinScreen(private val packet: JoinConfirmReceipt.Packet) :
         val matrices = context.pose()
         val x = (width - BASE_WIDTH) / 2
         val y = (height - BASE_HEIGHT) / 2
-
 
         //Background
         blitk(
@@ -184,6 +185,12 @@ class ConfirmJoinScreen(private val packet: JoinConfirmReceipt.Packet) :
     }
 
     override fun tick() {
+        if (packet.countdown != null && ticksElapsed == (packet.countdown * 20)) {
+            packet.reject()
+            responded = false
+            onClose()
+        }
+
         ticksElapsed++
 
         val delay = 3
@@ -197,6 +204,11 @@ class ConfirmJoinScreen(private val packet: JoinConfirmReceipt.Packet) :
         null
     }
 
-    fun createButton(x: Int, y: Int, cancel: Boolean, callback: (Button) -> Unit): Button =
-        ConfirmJoinButton(x, y, cancel, callback)
+    fun createButton(
+        x: Int,
+        y: Int,
+        cancel: Boolean,
+        callback: (Button) -> Unit,
+        countdown: Int? = null
+    ): Button = ConfirmJoinButton(x, y, cancel, callback, countdown)
 }

@@ -30,6 +30,7 @@ object JoinConfirmReceipt {
         val uuid: UUID,
         val name: Component,
         val renderable: RenderablePokemon,
+        val countdown: Int?,
         override val id: ResourceLocation = ID,
     ): NetworkPacket<Packet> {
 
@@ -39,7 +40,8 @@ object JoinConfirmReceipt {
             fun decode(buffer: RegistryFriendlyByteBuf) = Packet(
                 ByteBufCodecs.STRING_UTF8.decode(buffer).let { UUID.fromString(it) },
                 ByteBufCodecs.STRING_UTF8.decode(buffer).let { Component.translatable(it) },
-                RenderablePokemon.loadFromBuffer(buffer)
+                RenderablePokemon.loadFromBuffer(buffer),
+                ByteBufCodecs.optional(ByteBufCodecs.INT).decode(buffer).orElse(null)
             )
         }
 
@@ -47,6 +49,7 @@ object JoinConfirmReceipt {
             ByteBufCodecs.STRING_UTF8.encode(buffer, uuid.toString())
             ByteBufCodecs.STRING_UTF8.encode(buffer, name.string)
             renderable.saveToBuffer(buffer)
+            ByteBufCodecs.optional(ByteBufCodecs.INT).encode(buffer, Optional.ofNullable(countdown))
         }
 
         fun accept() = Response(uuid, true).sendToServer()
@@ -79,7 +82,12 @@ object JoinConfirmReceipt {
     class Data(
         val pokemon: Pokemon,
     ) : Holder.ReceiptPacketMaker<Packet> {
-        override fun toPacket(id: UUID) = Packet(id, pokemon.getDisplayName(), pokemon.asRenderablePokemon())
+        override fun toPacket(id: UUID) = Packet(
+            id,
+            pokemon.getDisplayName(),
+            pokemon.asRenderablePokemon(),
+            if (!config.enableCountdown) null else config.countdownSeconds
+        )
     }
 
     object HandlePacket: ClientNetworkPacketHandler<Packet> {
