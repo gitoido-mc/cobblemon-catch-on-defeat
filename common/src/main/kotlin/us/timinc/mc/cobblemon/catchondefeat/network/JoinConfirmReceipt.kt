@@ -6,6 +6,7 @@ import com.cobblemon.mod.common.api.net.ClientNetworkPacketHandler
 import com.cobblemon.mod.common.api.net.NetworkPacket
 import com.cobblemon.mod.common.api.net.ServerNetworkPacketHandler
 import com.cobblemon.mod.common.pokemon.Pokemon
+import com.cobblemon.mod.common.pokemon.RenderablePokemon
 import net.minecraft.client.Minecraft
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.network.chat.Component
@@ -19,7 +20,7 @@ import us.timinc.mc.cobblemon.catchondefeat.CatchOnDefeat.TranslationComponents.
 import us.timinc.mc.cobblemon.catchondefeat.CatchOnDefeat.config
 import us.timinc.mc.cobblemon.catchondefeat.CatchOnDefeat.debugger
 import us.timinc.mc.cobblemon.catchondefeat.handler.AttemptJoinOnDefeatHandler
-import us.timinc.mc.cobblemon.catchondefeat.screen.ConfirmJoinScreen
+import us.timinc.mc.cobblemon.catchondefeat.client.screen.ConfirmJoinScreen
 import us.timinc.mc.cobblemon.timcore.Holder
 import java.util.*
 
@@ -28,6 +29,7 @@ object JoinConfirmReceipt {
     data class Packet(
         val uuid: UUID,
         val name: Component,
+        val renderable: RenderablePokemon,
         override val id: ResourceLocation = ID,
     ): NetworkPacket<Packet> {
 
@@ -36,13 +38,15 @@ object JoinConfirmReceipt {
 
             fun decode(buffer: RegistryFriendlyByteBuf) = Packet(
                 ByteBufCodecs.STRING_UTF8.decode(buffer).let { UUID.fromString(it) },
-                ByteBufCodecs.STRING_UTF8.decode(buffer).let { Component.translatable(it) }
+                ByteBufCodecs.STRING_UTF8.decode(buffer).let { Component.translatable(it) },
+                RenderablePokemon.loadFromBuffer(buffer)
             )
         }
 
         override fun encode(buffer: RegistryFriendlyByteBuf) {
             ByteBufCodecs.STRING_UTF8.encode(buffer, uuid.toString())
             ByteBufCodecs.STRING_UTF8.encode(buffer, name.string)
+            renderable.saveToBuffer(buffer)
         }
 
         fun accept() = Response(uuid, true).sendToServer()
@@ -75,7 +79,7 @@ object JoinConfirmReceipt {
     class Data(
         val pokemon: Pokemon,
     ) : Holder.ReceiptPacketMaker<Packet> {
-        override fun toPacket(id: UUID) = Packet(id, pokemon.getDisplayName())
+        override fun toPacket(id: UUID) = Packet(id, pokemon.getDisplayName(), pokemon.asRenderablePokemon())
     }
 
     object HandlePacket: ClientNetworkPacketHandler<Packet> {
